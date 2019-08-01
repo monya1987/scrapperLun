@@ -1,0 +1,20 @@
+{
+  "name": "scrappers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo TEST",
+    "parse": "node -r ./node_modules/esm index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "esm": "^3.2.25",
+    "iconv-lite": "^0.5.0",
+    "needle": "^2.4.0",
+    "request": "^2.88.0",
+    "tress": "^1.1.4"
+  }
+}
