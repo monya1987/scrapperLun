@@ -35,7 +35,7 @@ config.map((item) => {
 });
 
 fs.writeFileSync(
-    `./sites.json`,
+    `./results/sites.json`,
     JSON.stringify(sitesResults, null, 4), 'utf8'
 );
 
