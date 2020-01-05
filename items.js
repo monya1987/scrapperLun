@@ -1,18 +1,20 @@
+import data from './results/links';
 import config from './config.js'
+import lunParser from './parsers/lun2';
+
 const tress = require('tress');
 const needle = require('needle');
 const cheerio = require('cheerio');
 const resolve = require('url').resolve;
 const fs = require('fs');
 
-config.map((item) => {
-    // build links .json
+
     let results = [];
     const q = tress((url, callback) => {
         needle.get(url, (err, res) => {
             if (err) throw err;
             const $ = cheerio.load(res.body);
-            results.push(item.parser($, url));
+            results.push(lunParser($, url));
             callback();
         });
 
@@ -21,24 +23,54 @@ config.map((item) => {
     q.drain = () => {
         if (results.length) {
             fs.writeFileSync(
-                `./results/links.json`,
+                `./results/res.json`,
                 JSON.stringify(results, null, 4), 'utf8'
             );
         }
     };
 
-    const limitPage = 9; // $(`.FunnelBottom-count b`); / 24
-    for (let i = 1; i <= limitPage; i++) {
-        if (i === 1) {
-            q.push([`${item.url}`]);
-        } else {
-            q.push([`${item.url}?page=${i}`]);
-        }
-    }
+
+
+Object.keys(data).map((i) => {
+    Object.keys(data[i]).map((item) => {
+        console.log(data[i][item].link);
+        q.push('https://novostroyki.lun.ua/'+encodeURI(data[i][item].link));
+    });
 });
-
-
-
+// config.map((item) => {
+//     // build links .json
+//     let results = [];
+//     const q = tress((url, callback) => {
+//         needle.get(url, (err, res) => {
+//             if (err) throw err;
+//             const $ = cheerio.load(res.body);
+//             results.push(item.parser($, url));
+//             callback();
+//         });
+//
+//     }, 1); // 10 параллельных потоков
+//
+//     q.drain = () => {
+//         if (results.length) {
+//             fs.writeFileSync(
+//                 `./results/links.json`,
+//                 JSON.stringify(results, null, 4), 'utf8'
+//             );
+//         }
+//     };
+//
+//     const limitPage = 9; // $(`.FunnelBottom-count b`); / 24
+//     for (let i = 1; i <= limitPage; i++) {
+//         if (i === 1) {
+//             q.push([`${item.url}`]);
+//         } else {
+//             q.push([`${item.url}?page=${i}`]);
+//         }
+//     }
+// });
+//
+//
+//
 
 
 
