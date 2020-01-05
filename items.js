@@ -18,7 +18,7 @@ const fs = require('fs');
             callback();
         });
 
-    }, 1); // 10 параллельных потоков
+    }, 10); // 10 параллельных потоков
 
     q.drain = () => {
         if (results.length) {
@@ -33,8 +33,8 @@ const fs = require('fs');
 
 Object.keys(data).map((i) => {
     Object.keys(data[i]).map((item) => {
-        console.log(data[i][item].link);
-        q.push('https://novostroyki.lun.ua/'+encodeURI(data[i][item].link));
+        console.log('https://novostroyki.lun.ua'+encodeURI(data[i][item].link));
+        q.push('https://novostroyki.lun.ua'+encodeURI(data[i][item].link));
     });
 });
 // config.map((item) => {

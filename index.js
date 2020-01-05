@@ -30,9 +30,9 @@ config.map((item) => {
     const limitPage = 9; // $(`.FunnelBottom-count b`); / 24
     for (let i = 1; i <= limitPage; i++) {
         if (i === 1) {
-            q.push([`${item.url}`]);
+            q.push(`${item.url}`);
         } else {
-            q.push([`${item.url}?page=${i}`]);
+            q.push(`${item.url}?page=${i}`);
         }
     }
 });
