@@ -1,43 +1,9 @@
-import buddhaParser from './parsers/buddhapizza';
-import pizzaOdUaParser from './parsers/pizzaOdUa';
+import lunParser from './parsers/lun';
 
 export default [
   {
-    name: 'buddhapizza',
-    url: 'https://buddhapizza.com/',
-    nameOrig: 'Buddha Pizza',
-    contacts: [
-      {
-        address: '',
-        pickup: false,
-        workHours: '11.00 - 22.30',
-        phones: ['+380 (67) 485 33 88'],
-      }
-    ],
-    logo: 'https://buddhapizza.com/img/og-image.jpg',
-    deliveryTime: 60, // in minutes
-    parser: buddhaParser
-  },
-  {
-    name: 'pizzaodua',
-    url: 'https://pizza.od.ua/menu/pizza/',
-    nameOrig: 'Pizza.od.ua',
-    contacts: [
-      {
-        address: 'ул. Ак. Вильямса 62 А',
-        pickup: true,
-        workHours: '10.00 - 00.00',
-        phones: ['+38 (048) 700 51 51', '+38 (063) 700 51 51'],
-      },
-      {
-        address: 'ул. Успенская, 40',
-        pickup: true,
-        workHours: '10.00 - 00.00',
-        phones: ['+38 (048) 700 51 51', '+38 (063) 700 51 51'],
-      }
-    ],
-    logo: 'https://buddhapizza.com/img/og-image.jpg',
-    deliveryTime: 60, // in minutes
-    parser: pizzaOdUaParser
+    name: 'lun',
+    url: 'https://novostroyki.lun.ua/%D0%B2%D1%81%D0%B5-%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-%D0%BE%D0%B4%D0%B5%D1%81%D1%81%D1%8B-%D0%B8-%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D0%B8',
+    parser: lunParser
   }
 ]

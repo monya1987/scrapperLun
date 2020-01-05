@@ -5,17 +5,11 @@ const cheerio = require('cheerio');
 const resolve = require('url').resolve;
 const fs = require('fs');
 
-
-let sitesResults = [];
 config.map((item) => {
-
-    // build sites.json
-    const {parser, ...itemFields} = item;
-    const sitesResult = itemFields;
-    sitesResults.push(sitesResult);
-
-    // build results .json
+    // build links .json
     let results = [];
+    const limitPage = 24;
+    // const totalHouses = $(`.FunnelBottom-count b`); / 24
     const q = tress((url, callback) => {
         needle.get(url, (err, res) => {
             if (err) throw err;
@@ -27,17 +21,17 @@ config.map((item) => {
 
     q.drain = () => {
         fs.writeFileSync(
-            `./results/${item.name}.json`,
+            `./results/links.json`,
             JSON.stringify(results, null, 4), 'utf8'
         );
     };
     q.push(item.url);
 });
 
-fs.writeFileSync(
-    `./results/sites.json`,
-    JSON.stringify(sitesResults, null, 4), 'utf8'
-);
+// fs.writeFileSync(
+//     `./results/links.json`,
+//     JSON.stringify(sitesResults, null, 4), 'utf8'
+// );
 
 
 
