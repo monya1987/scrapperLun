@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo TEST",
-    "parseLinks": "node -r ./node_modules/esm index.js",
-    "parse": "node -r ./node_modules/esm items.js"
+    "getUrls": "node -r ./node_modules/esm getUrls.js",
+    "getRecords": "node -r ./node_modules/esm getRecords.js"
   },
   "author": "",
   "license": "ISC",

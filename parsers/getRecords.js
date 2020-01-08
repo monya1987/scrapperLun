@@ -39,9 +39,7 @@ const parser = ($, url) => {
     const room4 = '.BuildingPrices-cell:contains(4-комнатные)';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
-
     const street = '';
-    console.log($(houseClass).parent().find('.BuildingAttributes-value').text());
     card.ID = 1;
     card.guid = 1;
     card.post_title = $(title).text();
