@@ -1,5 +1,4 @@
 const card = {
-    ID: 1,
     post_author: 1,
     post_date: '2019-12-27 16:46:07',
     post_date_gmt: '2019-12-27 16:46:07',
@@ -31,41 +30,39 @@ const parser = ($, url) => {
     const condition = '.BuildingAttributes-name:contains(Состояние квартиры)';
     const closed_territory = '.BuildingAttributes-name:contains(Закрытая территория)';
     const parking = '.BuildingAttributes-name:contains(Паркинг)';
-    const start_date = '';
     const price = '.BuildingPrices-range';
     const room1 = '.BuildingPrices-cell:contains(1-комнатные)';
     const room2 = '.BuildingPrices-cell:contains(2-комнатные)';
     const room3 = '.BuildingPrices-cell:contains(3-комнатные)';
     const room4 = '.BuildingPrices-cell:contains(4-комнатные)';
+    const room2flors = '.BuildingPrices-cell:contains(Двухуровневые)';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
-    const street = '';
-    card.ID = 1;
-    card.guid = 1;
+
     card.post_title = $(title).text();
     card.post_name = encodeURI($(title).text());
     card.post_content = $(description).innerHTML;
     card.fields.address = $(address).text();
     card.fields.houseClass = $(houseClass).parent().find('.BuildingAttributes-value').text();
-    card.fields.cnt_houses = $(street).text();
-    card.fields.floors = $(street).text();
-    card.fields.technologies = $(street).text();
-    card.fields.walls = $(street).text();
-    card.fields.warming = $(street).text();
-    card.fields.heating = $(street).text();
-    card.fields.ceiling = $(street).text();
-    card.fields.cnt_aparts = $(street).text();
-    card.fields.condition = $(street).text();
-    card.fields.closed_territory = $(street).text();
-    card.fields.parking = $(street).text();
-    card.fields.start_date = $(street).text();
-    card.fields.price = $(street).text();
-    card.fields.studios = $(street).text();
-    card.fields['1room'] = $(room1).parent().find('.BuildingPrices-cell').text();
-    card.fields['2room'] = $(street).text();
-    card.fields['3room'] = $(street).text();
-    card.fields.area = $(street).text();
-    card.fields.developer = $(street).text();
+    card.fields.cnt_houses = $(cnt_houses).text();
+    card.fields.floors = $(floors).text();
+    card.fields.technologies = $(technologies).text();
+    card.fields.walls = $(walls).text();
+    card.fields.warming = $(warming).text();
+    card.fields.heating = $(heating).text();
+    card.fields.ceiling = $(ceiling).text();
+    card.fields.cnt_aparts = $(cnt_aparts).text();
+    card.fields.condition = $(condition).text();
+    card.fields.closed_territory = $(closed_territory).text();
+    card.fields.parking = $(parking).text();
+    card.fields.price = $(price).text().replace(/\s/g, '');
+    card.fields.room1 = $(room1).parent().parent().find('.BuildingPrices-cell').eq(3).text().replace(/\s/g, '');
+    card.fields.room2 = $(room2).parent().parent().find('.BuildingPrices-cell').eq(3).text().replace(/\s/g, '');
+    card.fields.room3 = $(room3).parent().parent().find('.BuildingPrices-cell').eq(3).text().replace(/\s/g, '');
+    card.fields.room4 = $(room4).parent().parent().find('.BuildingPrices-cell').eq(3).text().replace(/\s/g, '');
+    card.fields.room2flors = $(room2flors).parent().parent().find('.BuildingPrices-cell').eq(3).text().replace(/\s/g, '');
+    card.fields.area = $(area).text();
+    card.fields.developer = $(developer).text();
     return card;
 };
 export default parser;
