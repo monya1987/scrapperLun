@@ -27,7 +27,7 @@ config.map((item) => {
         }
     };
 
-    const limitPage = 9; // $(`.FunnelBottom-count b`); / 24
+    const limitPage = 2; // $(`.FunnelBottom-count b`); / 24
     for (let i = 1; i <= limitPage; i++) {
         if (i === 1) {
             q.push(`${item.url}`);
