@@ -41,7 +41,7 @@ const parser = ($, url) => {
 
     card.post_title = $(title).text();
     card.post_name = encodeURI($(title).text());
-    card.post_content = $(description).innerHTML;
+    card.post_content = $(description).html();
     card.fields.address = $(address).text();
     card.fields.houseClass = $(houseClass).parent().find('.BuildingAttributes-value').text();
     card.fields.cnt_houses = $(cnt_houses).text();
