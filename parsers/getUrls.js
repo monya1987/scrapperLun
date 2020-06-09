@@ -9,9 +9,11 @@ const parser = ($, url) => {
     $(selector).map((index) => {
         const item = $(`${selector}:nth-child(${index + 1})`);
         const card = {};
-        card.id = page;
+        card.id = index;
         card.title = item.find('.card-title').text();
-        card.link = item.find('.card-media').attr('href');
+        card.title = card.title.replace('ЖК ', '');
+        card.urlLun = item.find('.card-media').attr('href');
+        card.urlFresco = '';
         res.push(card);
     });
 

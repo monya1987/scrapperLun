@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo TEST",
     "getUrls": "node -r ./node_modules/esm getUrls.js",
-    "getRecords": "node -r ./node_modules/esm getRecords.js"
+    "getUrlsFresco": "node -r ./node_modules/esm getUrlsFresco.js",
+    "getRecords": "node -r ./node_modules/esm getRecords.js",
+    "getImages": "node -r ./node_modules/esm getImages.js"
   },
   "author": "",
   "license": "ISC",

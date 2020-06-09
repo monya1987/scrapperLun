@@ -11,7 +11,8 @@ const q = tress((url, callback) => {
     needle.get(url, (err, res) => {
         if (err) throw err;
         const $ = cheerio.load(res.body);
-        results.push(getUrlsParser($, url));
+        const parserRes = getUrlsParser($, url);
+        parserRes.map(item => {results.push(item);});
         callback();
     });
 
@@ -19,14 +20,20 @@ const q = tress((url, callback) => {
 
 q.drain = () => {
     if (results.length) {
+
+        const data = JSON.parse(fs.readFileSync('./results/urls.json', 'utf-8'));
+        data.map((item, index) => {
+            item.id = index;
+        });
+
         fs.writeFileSync(
-            `./results/urls.json`,
-            JSON.stringify(results, null, 4), 'utf8'
+            `./results/urlsNew.json`,
+            JSON.stringify(data, null, 4), 'utf8'
         );
     }
 };
 
-const limitPage = 2; // $(`.FunnelBottom-count b`); / 24
+const limitPage = 9; // $(`.FunnelBottom-count b`); / 24
 for (let i = 1; i <= limitPage; i++) {
     if (i === 1) {
         q.push(`${config.url}${config.urlPageList}`);
