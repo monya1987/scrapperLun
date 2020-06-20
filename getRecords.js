@@ -1,4 +1,4 @@
-import data from './results/urls';
+import data from '../public/data/ulrs';
 import config from './config.js';
 import lunParser from './parsers/getRecords';
 const tress = require('tress');
@@ -18,35 +18,20 @@ const q = tress((record, callback) => {
             xmlMode: true
         });
         const mainParser = lunParser($, record);
+        const plansUrls = [];
         needle.get(encodeURI(config.url+'/ru'+record.urlLun+'/планировки'), (err, res) => {
-            if (err) throw err;
             const $ = cheerio.load(res.body, {
                 normalizeWhitespace: true,
                 xmlMode: true
             });
-
-            const plansImages = [];
             $('.PlansCard').each(function () {
-                const plan = {};
-                let imagePath = $(this).find('img').attr('data-src');
-                if (imagePath) {
-                    const toCrop = plan.title = $(this).find('.PlansCard-content p span').text();
-                    plan.title = $(this).find('.PlansCard-area').text();
-                    plan.imagePath = imagePath;
-                    plan.imageAlt = $(this).find('img').attr('alt');
-                    plan.rooms = $(this).find('.PlansCard-area .placeholder').text();
-                    if (plan.rooms.match('-комнатная')) {
-                        plan.rooms = plan.rooms.slice(0, 1)
-                    }
-                    plansImages.push(plan);
-                }
+                let urlPlan = $(this).attr('href');
+                plansUrls.push(urlPlan);
             });
-
-            mainParser.plansImages = plansImages;
+            mainParser.plans = plansUrls;
             results.push(mainParser);
             callback();
-        });
-
+        })
     });
 
 }, 10); // 10 параллельных потоков
@@ -54,7 +39,7 @@ const q = tress((record, callback) => {
 q.drain = () => {
     if (results.length) {
         fs.writeFileSync(
-            `./results/records.json`,
+            `../public/data/records.json`,
             JSON.stringify(results, null, 4), 'utf8'
         );
     }

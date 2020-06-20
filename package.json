@@ -8,6 +8,7 @@
     "getUrls": "node -r ./node_modules/esm getUrls.js",
     "getUrlsFresco": "node -r ./node_modules/esm getUrlsFresco.js",
     "getRecords": "node -r ./node_modules/esm getRecords.js",
+    "getRecords2": "node -r ./node_modules/esm getRecords2.js",
     "getImages": "node -r ./node_modules/esm getImages.js"
   },
   "author": "",
