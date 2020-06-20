@@ -1,4 +1,4 @@
-import data from './results/records';
+import data from '../public/data/records';
 import config from './config.js';
 const tress = require('tress');
 const needle = require('needle');
@@ -16,18 +16,16 @@ function saveImageToDisk(url, localPath) {
 }
 
 const imagesParser = (obj) => {
-    // let imagePath = 'https://img.lun.ua/building-800x600/'+obj.url;
-    console.log(obj);
-    let imagePath = obj.url.match(/[0-9]+.jpg|[0-9]+.png|[0-9]+.svg/i);
+    let imagePath = obj.url.match(/[0-9]+.jpg|[0-9]+.png/i);
     if (imagePath.length) {
         imagePath = imagePath[0];
     }
     if (imagePath) {
-        const folder = path.join(__dirname, './images/'+obj.id);
+        const folder = path.join(__dirname, '../public/images/buildings/'+obj.id);
         if (!fs.existsSync(folder)){
             fs.mkdirSync(folder);
         }
-        const planFolder = path.join(__dirname, './images/'+obj.id+'/plans');
+        const planFolder = path.join(__dirname, '../public/images/buildings/'+obj.id+'/plans');
         if (!fs.existsSync(planFolder)){
             fs.mkdirSync(planFolder);
         }
@@ -35,14 +33,14 @@ const imagesParser = (obj) => {
         if (obj.tag === 'house') {
             if (!fs.existsSync(folder+ '/' + imagePath)) {
                 console.log(imagePath);
-                saveImageToDisk('https:'+ obj.url, folder+ '/' + imagePath);
+                saveImageToDisk('https://img.lunstatic.net/building-800x600/'+ obj.url, folder+ '/' + imagePath);
             }
         }
 
         if (obj.tag === 'plan') {
             if (!fs.existsSync(planFolder+ '/' + imagePath)) {
                 console.log(imagePath);
-                saveImageToDisk('https:'+ obj.url, planFolder+ '/' + imagePath);
+                saveImageToDisk('https://img.lunstatic.net/layout-650x800/'+ obj.url, planFolder+ '/' + imagePath);
             }
         }
 
@@ -62,7 +60,9 @@ data.map((record) => {
     record.houseImages.map((url) => {
         q.push({url: url, id: record.id, tag: 'house'});
     });
-    record.plansImages.map(plan => {
-        q.push({url: plan.imagePath, id: record.id, tag: 'plan'});
-    });
+    if (record.plans) {
+        record.plans.map(plan => {
+            q.push({url: plan.imagePath, id: record.id, tag: 'plan'});
+        });
+    }
 });

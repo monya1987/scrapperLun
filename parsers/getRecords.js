@@ -83,9 +83,8 @@ const parser = ($, record) => {
     card.houseImages = [];
     $(houseImagesSelector).each(function () {
         let imagePath = $(this).attr('src');
-        if (imagePath) {
+        if (imagePath && imagePath.indexOf('//img.lunstatic.net/building-800x600/') !== -1) {
             imagePath = imagePath.replace('//img.lunstatic.net/building-800x600/', '');
-            imagePath = imagePath.replace('//img.lunstatic.net/site-plan-800x600/', '');
             card.houseImages.push(imagePath);
         }
     });
