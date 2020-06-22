@@ -19,14 +19,16 @@ const qGetPlans = tress((obj, callback) => {
             xmlMode: true
         });
         let imagePath = $('[data-canvas-for="developer"]').find('img').attr('src');
-        imagePath = imagePath.replace('//img.lunstatic.net/layout-650x800/', '');
-        let planTitle = $('.PlanView-title').find('.h1').text();
-        planTitle = planTitle.replace('Еще планировки', '');
-        planObj.imagePath = imagePath;
-        planObj.title = planTitle;
-        planObj.imageAlt = '';
-        planObj.rooms = '';
-        results[obj.record.id].push(planObj);
+        if (imagePath) {
+            imagePath = imagePath.replace('//img.lunstatic.net/layout-650x800/', '');
+            let planTitle = $('.PlanView-title').find('.h1').text();
+            planTitle = planTitle.replace('Еще планировки', '');
+            planObj.imagePath = imagePath;
+            planObj.title = planTitle;
+            planObj.imageAlt = '';
+            planObj.rooms = '';
+            results[obj.record.id].push(planObj);
+        }
         callback()
     });
 
