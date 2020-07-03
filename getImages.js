@@ -30,6 +30,11 @@ const imagesParser = (obj) => {
             fs.mkdirSync(planFolder);
         }
 
+        const progressFolder = path.join(__dirname, '../public/images/buildings/'+obj.id+'/progress');
+        if (!fs.existsSync(progressFolder)){
+            fs.mkdirSync(progressFolder);
+        }
+
         if (obj.tag === 'house') {
             if (!fs.existsSync(folder+ '/' + imagePath)) {
                 console.log(imagePath);
@@ -41,6 +46,13 @@ const imagesParser = (obj) => {
             if (!fs.existsSync(planFolder+ '/' + imagePath)) {
                 console.log(imagePath);
                 saveImageToDisk('https://img.lunstatic.net/layout-650x800/'+ obj.url, planFolder+ '/' + imagePath);
+            }
+        }
+
+        if (obj.tag === 'progress') {
+            if (!fs.existsSync(progressFolder+ '/' + imagePath)) {
+                console.log(imagePath);
+                saveImageToDisk('https://img.lunstatic.net/construction-800x450/'+ obj.url, progressFolder+ '/' + imagePath);
             }
         }
 
@@ -63,6 +75,13 @@ data.map((record) => {
     if (record.plans) {
         record.plans.map(plan => {
             q.push({url: plan.imagePath, id: record.id, tag: 'plan'});
+        });
+    }
+    if (record.progress) {
+        record.progress.map(item => {
+            if (item.image) {
+                q.push({url: item.image, id: record.id, tag: 'progress'});
+            }
         });
     }
 });

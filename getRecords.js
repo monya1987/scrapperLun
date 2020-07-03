@@ -13,7 +13,7 @@ const q = tress((record, callback) => {
     const url = encodeURI(config.url+'/ru'+record.urlLun);
     needle.get(url, (err, res) => {
         if (err) throw err;
-        const $ = cheerio.load(res.body, {
+        const $ = cheerio.load(res.body.replace(/&nbsp;/g, " "), {
             normalizeWhitespace: true,
             xmlMode: true
         });

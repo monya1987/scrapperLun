@@ -24,7 +24,7 @@ const parser = ($, record) => {
     const rooms = '#prices div[data-table="0"] .BuildingPrices-table a';
     const cnt_aparts = '.BuildingAttributes-name:contains(Количество квартир)';
     const price = '.BuildingPrices-range';
-    const priceChart = '#prices-chart .BuildingChart-columns[data-chart="usd"] .BuildingChart-column';
+    const priceChart = '#prices-chart .BuildingChart-columns[data-currency="usd"] .BuildingChart-column';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
     const buildingLabel = '.BuildingGallery .label';
@@ -35,9 +35,11 @@ const parser = ($, record) => {
     const buildingDocs = '.BuildingDocuments-items a';
     const buildingProgress = '.BuildingConstruction-item';
     const buildingAction = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-description';
-    const location = $('.BuildingLocation-route').attr('href');
-    const buildingVideo = '.BuildingGallery-preview';
-    const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
+    const buildingActionDate = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-label placeholder';
+    const description = $('.BuildingDescription-text');
+    const location = $('script[type="application/ld+json"]').last().html();
+    // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
+    // const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
 
 
     card.developer = $(developer).text().trim();
@@ -48,9 +50,17 @@ const parser = ($, record) => {
     card.area = cropSubStrings($(area).text(), ['р-н']);
     card.address = $(address).text().trim();
     card.action = $(buildingAction).text();
+    card.actionDate = $(buildingActionDate).text();
     card.price = cropSubStrings($(price).text().trim(), ['Цена:', 'грн/м²']).match(/\d\d \d\d\d/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
+    card.description = $(description).html() && $(description).html().replace('\\', '/');
+    if (location) {
+        const locationJSON = JSON.parse(location);
+        if (locationJSON && locationJSON.location && locationJSON.location.geo) {
+            card.location = [locationJSON.location.geo.latitude, locationJSON.location.geo.longitude]
+        }
+    }
     card.documents = [];
     $(buildingDocs).each(function () {
         const document = {};
@@ -61,9 +71,14 @@ const parser = ($, record) => {
     card.progress = [];
     $(buildingProgress).each(function () {
         const item = {};
+        let imagePath = $(this).find('.BuildingConstruction-image:last-child img').attr('data-src');
         item.title = $(this).find('.BuildingConstruction-name').text().trim();
         item.description = $(this).find('.BuildingConstruction-info .placeholder').first().text().trim();
         item.date = $(this).find('.BuildingConstruction-state').text();
+        if (imagePath && imagePath.indexOf('//img.lunstatic.net/construction-800x450/') !== -1) {
+            imagePath = imagePath.replace('//img.lunstatic.net/construction-800x450/', '');
+            item.image = imagePath;
+        }
         card.progress.push(item);
     });
     card.priceStat = [];

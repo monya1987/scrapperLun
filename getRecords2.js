@@ -7,6 +7,23 @@ const resolve = require('url').resolve;
 const fs = require('fs');
 let results = [];
 
+const getRooms = (text) => {
+    let res = 0;
+    if (text.includes('Однокомнатная')) {
+        res = 1;
+    }
+    if (text.includes('2-комнатная')) {
+        res = 2;
+    }
+    if (text.includes('3-комнатная')) {
+        res = 3;
+    }
+    if (text.includes('4-комнатная')) {
+        res = 4;
+    }
+    return res;
+};
+
 const qGetPlans = tress((obj, callback) => {
     if (typeof results[obj.record.id] === 'undefined') {
         results[obj.record.id] = [];
@@ -22,11 +39,13 @@ const qGetPlans = tress((obj, callback) => {
         if (imagePath) {
             imagePath = imagePath.replace('//img.lunstatic.net/layout-650x800/', '');
             let planTitle = $('.PlanView-title').find('.h1').text();
+            let planPrice = $('.BuildingAction-description div :nth-child(2)').text();
             planTitle = planTitle.replace('Еще планировки', '');
             planObj.imagePath = imagePath;
             planObj.title = planTitle;
             planObj.imageAlt = '';
-            planObj.rooms = '';
+            planObj.rooms = getRooms(planTitle);
+            planObj.price = planPrice.trim().replace(/&nbsp;/g, " ");
             results[obj.record.id].push(planObj);
         }
         callback()
