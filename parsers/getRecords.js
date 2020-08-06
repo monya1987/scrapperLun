@@ -11,6 +11,23 @@ const getFieldValue = (node) => {
     return node.parent().find('.BuildingAttributes-value').text().trim();
 };
 
+const getPriceInNumber = (text) => {
+    let res = cropSubStrings(text, ['от', 'грн', 'м²', '≈']);
+    if (res.includes('тыс.')) {
+        res = res.replace('тыс.', '000')
+    }
+    if (res.includes('млн')) {
+        res = res.replace(' млн', '')
+        if (Number.isInteger(Number(res))) {
+            res = res+' 000 000'.replace('.',' ');
+        } else {
+            res = (Number(res).toFixed(3)+' 000').replace('.',' ')
+        }
+    }
+    console.log(`getPriceInNumber ${res}`);
+    return res;
+};
+
 const parser = ($, record) => {
     const card = {};
     card.id = record.id;
@@ -24,7 +41,7 @@ const parser = ($, record) => {
     const rooms = '#prices div[data-table="0"] .BuildingPrices-table a';
     const cnt_aparts = '.BuildingAttributes-name:contains(Количество квартир)';
     const price = '.BuildingPrices-range';
-    const priceChart = '#prices-chart .BuildingChart-columns[data-currency="usd"] .BuildingChart-column';
+    const priceChart = '#prices-chart .Arrows[data-currency="usd"] .BuildingChart-column';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
     const buildingLabel = '.BuildingGallery .label';
@@ -35,7 +52,7 @@ const parser = ($, record) => {
     const buildingDocs = '.BuildingDocuments-items a';
     const buildingProgress = '.BuildingConstruction-item';
     const buildingAction = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-description';
-    const buildingActionDate = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-label placeholder';
+    const buildingActionDate = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-label .placeholder';
     const description = $('.BuildingDescription-text');
     const location = $('script[type="application/ld+json"]').last().html();
     // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
@@ -55,6 +72,10 @@ const parser = ($, record) => {
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
     card.description = $(description).html() && $(description).html().replace('\\', '/');
+    function getRandomArbitrary(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+    card.rating = [getRandomArbitrary(3, 6), getRandomArbitrary(10, 233)];
     if (location) {
         const locationJSON = JSON.parse(location);
         if (locationJSON && locationJSON.location && locationJSON.location.geo) {
@@ -106,8 +127,10 @@ const parser = ($, record) => {
     card.rooms = [];
     $(rooms).each(function () {
         const room = {};
+        const priceSelector = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="uah"]').first().text().trim();
         room.title = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell').first().text().trim();
-        room.price = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="uah"]').first().text().trim();
+        room.price = priceSelector;
+        room.priceNum = getPriceInNumber(priceSelector);
         room.meter = $(this).find('.BuildingPrices-subrow:nth-child(3) .BuildingPrices-cell').first().text().trim();
         card.rooms.push(room);
     });
@@ -174,28 +197,6 @@ const parser = ($, record) => {
     // card.fields.condition = getFieldValue($(condition));
     // card.fields.closed_territory = getFieldValue($(closed_territory));
     // card.fields.parking = getFieldValue($(parking));
-    //
-    // const getRoomsValue = (selector, index) => {
-    //
-    //     let res = $(selector).parent().parent().find('.BuildingPrices-cell').eq(index).find('span[data-currency="uah"]').text();
-    //     res = cropSubStrings(res, ['от', 'грн', 'м²']);
-    //     if (res.includes('тыс.')) {
-    //         res = res.replace('тыс.', '000')
-    //     }
-    //     if (res.includes('млн')) {
-    //         res = res.replace(' млн', '')
-    //         console.log(1, res);
-    //         if (Number.isInteger(Number(res))) {
-    //             res = res+' 000 000'.replace('.',' ');
-    //             console.log(2, res);
-    //         } else {
-    //             res = (Number(res).toFixed(3)+' 000').replace('.',' ')
-    //             console.log(2, res);
-    //         }
-    //     }
-    //     return res;
-    // };
-    //
     // card.rooms.room1 = $(room1).parent().parent().find('.BuildingPrices-cell').eq(3).text();
     // card.rooms.room2 = $(room2).parent().parent().find('.BuildingPrices-cell').eq(3).text();
     // card.rooms.room3 = $(room3).parent().parent().find('.BuildingPrices-cell').eq(3).text();

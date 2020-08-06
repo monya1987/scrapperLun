@@ -7,6 +7,30 @@ const resolve = require('url').resolve;
 const fs = require('fs');
 let results = [];
 
+const cropSubStrings = (str, arr) => {
+    let res = str.trim();
+    arr.map((arrStr) => {
+        res = res.replace(arrStr, '').trim();
+    });
+    return res;
+};
+const getPriceInNumber = (text) => {
+    let res = cropSubStrings(text, ['от', 'грн', 'м²', '≈']);
+    if (res.includes('тыс.')) {
+        res = res.replace('тыс.', '000')
+    }
+    if (res.includes('млн')) {
+        res = res.replace(' млн', '')
+        if (Number.isInteger(Number(res))) {
+            res = res+' 000 000'.replace('.',' ');
+        } else {
+            res = (Number(res).toFixed(3)+' 000').replace('.',' ')
+        }
+    }
+    console.log(`getPriceInNumber ${res}`);
+    return res;
+};
+
 const getRooms = (text) => {
     let res = 0;
     if (text.includes('Однокомнатная')) {
@@ -42,10 +66,11 @@ const qGetPlans = tress((obj, callback) => {
             let planPrice = $('.BuildingAction-description div :nth-child(2)').text();
             planTitle = planTitle.replace('Еще планировки', '');
             planObj.imagePath = imagePath;
-            planObj.title = planTitle;
+            planObj.title = planTitle.replace(/&nbsp;/g, '');
             planObj.imageAlt = '';
             planObj.rooms = getRooms(planTitle);
             planObj.price = planPrice.trim().replace(/&nbsp;/g, " ");
+            planObj.priceNum = getPriceInNumber(planPrice.trim().replace(/&nbsp;/g, ''));
             results[obj.record.id].push(planObj);
         }
         callback()
