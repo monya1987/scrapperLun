@@ -96,8 +96,8 @@ const parser = ($, record) => {
         item.title = $(this).find('.BuildingConstruction-name').text().trim();
         item.description = $(this).find('.BuildingConstruction-info .placeholder').first().text().trim();
         item.date = $(this).find('.BuildingConstruction-state').text();
-        if (imagePath && imagePath.indexOf('//img.lunstatic.net/construction-800x450/') !== -1) {
-            imagePath = imagePath.replace('//img.lunstatic.net/construction-800x450/', '');
+        if (imagePath && imagePath.indexOf('https://img.lunstatic.net/construction-800x450/') !== -1) {
+            imagePath = imagePath.replace('https://img.lunstatic.net/construction-800x450/', '');
             item.image = imagePath;
         }
         card.progress.push(item);
@@ -119,8 +119,8 @@ const parser = ($, record) => {
     card.houseImages = [];
     $(houseImagesSelector).each(function () {
         let imagePath = $(this).attr('src');
-        if (imagePath && imagePath.indexOf('//img.lunstatic.net/building-800x600/') !== -1) {
-            imagePath = imagePath.replace('//img.lunstatic.net/building-800x600/', '');
+        if (imagePath && imagePath.indexOf('https://img.lunstatic.net/building-800x600/') !== -1) {
+            imagePath = imagePath.replace('https://img.lunstatic.net/building-800x600/', '');
             card.houseImages.push(imagePath);
         }
     });
