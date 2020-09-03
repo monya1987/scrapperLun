@@ -16,6 +16,7 @@ const cropSubStrings = (str, arr) => {
 };
 const getPriceInNumber = (text) => {
     let res = cropSubStrings(text, ['от', 'грн', 'м²', '≈']);
+    console.log(res);
     if (res.includes('тыс.')) {
         res = res.replace('тыс.', '000')
     }
@@ -61,9 +62,9 @@ const qGetPlans = tress((obj, callback) => {
         });
         let imagePath = $('[data-canvas-for="developer"]').find('img').attr('src');
         if (imagePath) {
-            imagePath = imagePath.replace('//img.lunstatic.net/layout-650x800/', '');
-            let planTitle = $('.PlanView-title').find('.h1').text();
-            let planPrice = $('.BuildingAction-description div :nth-child(2)').text();
+            imagePath = imagePath.replace('https://img.lunstatic.net/layout-650x800/', '');
+            let planTitle = $('.UIMainTitle.-with-subtitle').find('.h2').text();
+            let planPrice = $('.BuildingAction-item[style^="--color: 255,152,0"] .BuildingAction-content.-link div div div').text();
             planTitle = planTitle.replace('Еще планировки', '');
             planObj.imagePath = imagePath;
             planObj.title = planTitle.replace(/&nbsp;/g, '');
