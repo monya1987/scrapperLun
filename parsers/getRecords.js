@@ -37,7 +37,7 @@ const parser = ($, record) => {
 
     // Selectors
     const fields = '.BuildingAttributes-items .BuildingAttributes-item';
-    const address = '.BuildingLocation-address';
+    const address = '.BuildingLocation .UISubtitle-content';
     const rooms = '#prices div[data-table="0"] .BuildingPrices-table a';
     const cnt_aparts = '.BuildingAttributes-name:contains(Количество квартир)';
     const price = '.BuildingPrices-range';
@@ -45,14 +45,13 @@ const parser = ($, record) => {
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
     const buildingLabel = '.BuildingGallery .label';
-    const finalDate = '.BuildingPrices-chips :last-child';
-    const updated = '.Building-subtitle';
+    const finalDate = '.BuildingPrices-date ~ .UIChips .UIChip';
+    const updated = '.BuildingPrices .UISubtitle-content';
     const purchaseConditions = '#building-action .BuildingAction-item[style^="--color: 250,180,0"] .BuildingAction-description';
     const houseImagesSelector = '.BuildingGallery-slider img';
-    const buildingDocs = '.BuildingDocuments-items a';
+    const buildingDocs = '.BuildingDocuments .UICardLink';
     const buildingProgress = '.BuildingConstruction-item';
-    const buildingAction = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-description';
-    const buildingActionDate = '#building-action .BuildingAction-item[style^="--color: 0,190,113"] .BuildingAction-label .placeholder';
+    const buildingActions = '#building-action .UICardLink-content';
     const description = $('.BuildingDescription-text');
     const location = $('script[type="application/ld+json"]').last().html();
     // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
@@ -62,12 +61,9 @@ const parser = ($, record) => {
     card.developer = $(developer).text().trim();
     card.developerSlug = transliter.slugify(card.developer);
     card.purchaseConditions = $(purchaseConditions).text().trim();
-    card.finalDate = $(finalDate).text().trim();
     card.buildingLabel = $(buildingLabel).text().trim();
     card.area = cropSubStrings($(area).text(), ['р-н']);
     card.address = $(address).text().trim();
-    card.action = $(buildingAction).text();
-    card.actionDate = $(buildingActionDate).text();
     card.price = cropSubStrings($(price).text().trim(), ['Цена:', 'грн/м²']).match(/\d\d \d\d\d/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
@@ -82,11 +78,30 @@ const parser = ($, record) => {
             card.location = [locationJSON.location.geo.latitude, locationJSON.location.geo.longitude]
         }
     }
+    card.actions = [];
+    card.paymentPlan = [];
+    $(buildingActions).each(function () {
+        const action = {};
+        action.label = $(this).find('.UICardLink-title').text().trim();
+        action.value = $(this).find('.UICardLink-description').text().trim();
+        if (action.label.includes('Акция')) {
+            card.actions.push(action);
+        } else {
+            card.paymentPlan.push(action);
+        }
+
+    });
+
+    card.finalDate = [];
+    $(finalDate).each(function () {
+        card.finalDate.push($(this).find('.UIChip-content').text().trim());
+    });
+
     card.documents = [];
     $(buildingDocs).each(function () {
         const document = {};
-        document.label = $(this).find('.BuildingDocuments-title').text().trim();
-        document.value = $(this).find('.placeholder').text().trim();
+        document.label = $(this).find('.UICardLink-title').text().trim();
+        document.value = $(this).find('.UICardLink-description').text().trim();
         card.documents.push(document);
     });
     card.progress = [];

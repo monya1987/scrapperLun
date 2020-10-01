@@ -64,14 +64,16 @@ const qGetPlans = tress((obj, callback) => {
         if (imagePath) {
             imagePath = imagePath.replace('https://img.lunstatic.net/layout-650x800/', '');
             let planTitle = $('.UIMainTitle.-with-subtitle').find('.h2').text();
-            let planPrice = $('.BuildingAction-item[style^="--color: 255,152,0"] .BuildingAction-content.-link div div div').text();
+            let planPrice = $('.PlanLinks .UIGrid :first-child .UICardLink-description div').first().text();
             planTitle = planTitle.replace('Еще планировки', '');
             planObj.imagePath = imagePath;
             planObj.title = planTitle.replace(/&nbsp;/g, '');
             planObj.imageAlt = '';
             planObj.rooms = getRooms(planTitle);
-            planObj.price = planPrice.trim().replace(/&nbsp;/g, " ");
-            planObj.priceNum = getPriceInNumber(planPrice.trim().replace(/&nbsp;/g, ''));
+            if (planPrice.includes('млн') || planPrice.includes('млн') || planPrice.includes('000')) {
+                planObj.price = planPrice.trim().replace(/&nbsp;/g, " ");
+                planObj.priceNum = getPriceInNumber(planPrice.trim().replace(/&nbsp;/g, ''));
+            }
             results[obj.record.id].push(planObj);
         }
         callback()
