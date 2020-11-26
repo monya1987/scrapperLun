@@ -1,4 +1,4 @@
-import data from '../public/data/ulrs';
+// import data from '../public/data/ulrs';
 import config from './config.js';
 import lunParser from './parsers/getRecords';
 const tress = require('tress');
@@ -45,8 +45,19 @@ q.drain = () => {
     }
 };
 
+// fetch('https://garant.od.ua/api/getRecords')
+function init() {
+    fetch('http://localhost:3000/api/getRecords')
+        .then(res => res.json())
+        .then((data) => {
+            data.map((record) => q.push(record));
+        });
+}
 
-data.map((record) => {
-    q.push(record);
-});
+init();
+
+
+// data.map((record) => {
+//     q.push(record);
+// });
 

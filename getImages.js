@@ -1,9 +1,5 @@
-import data from '../public/data/records';
-import config from './config.js';
+const fetch = require("node-fetch");
 const tress = require('tress');
-const needle = require('needle');
-const cheerio = require('cheerio');
-const resolve = require('url').resolve;
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
@@ -37,14 +33,12 @@ const imagesParser = (obj) => {
 
         if (obj.tag === 'house') {
             if (!fs.existsSync(folder+ '/' + imagePath)) {
-                console.log(imagePath);
                 saveImageToDisk('https://img.lunstatic.net/building-800x600/'+ obj.url, folder+ '/' + imagePath);
             }
         }
 
         if (obj.tag === 'plan') {
             if (!fs.existsSync(planFolder+ '/' + imagePath)) {
-                console.log(imagePath);
                 saveImageToDisk('https://img.lunstatic.net/layout-650x800/'+ obj.url, planFolder+ '/' + imagePath);
             }
         }
@@ -56,8 +50,6 @@ const imagesParser = (obj) => {
             }
         }
 
-
-
     }
 };
 
@@ -65,23 +57,32 @@ const imagesParser = (obj) => {
 const q = tress((obj, callback) => {
     imagesParser(obj);
     callback();
-}, 10); // 10 параллельных потоков
+}, 1); // 10 параллельных потоков
 
+// fetch('https://garant.od.ua/api/getRecords')
+function init() {
+    fetch('http://localhost:3000/api/getRecords')
+        .then(res => res.json())
+        .then((data) => {
+            data.map((record) => {
+                console.log(record.title);
+                record.houseImages.map((url) => {
+                    q.push({url: url, id: record._id, tag: 'house'});
+                });
+                if (record.plans) {
+                    record.plans.map(plan => {
+                        q.push({url: plan.imagePath, id: record._id, tag: 'plan'});
+                    });
+                }
+                if (record.progress) {
+                    record.progress.map(item => {
+                        if (item.image) {
+                            q.push({url: item.image, id: record._id, tag: 'progress'});
+                        }
+                    });
+                }
+            });
+        });
+}
 
-data.map((record) => {
-    record.houseImages.map((url) => {
-        q.push({url: url, id: record.id, tag: 'house'});
-    });
-    if (record.plans) {
-        record.plans.map(plan => {
-            q.push({url: plan.imagePath, id: record.id, tag: 'plan'});
-        });
-    }
-    if (record.progress) {
-        record.progress.map(item => {
-            if (item.image) {
-                q.push({url: item.image, id: record.id, tag: 'progress'});
-            }
-        });
-    }
-});
+init();
