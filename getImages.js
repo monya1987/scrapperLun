@@ -17,16 +17,16 @@ const imagesParser = (obj) => {
         imagePath = imagePath[0];
     }
     if (imagePath) {
-        const folder = path.join(__dirname, '../public/images/buildings/'+obj.id);
+        const folder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id);
         if (!fs.existsSync(folder)){
             fs.mkdirSync(folder);
         }
-        const planFolder = path.join(__dirname, '../public/images/buildings/'+obj.id+'/plans');
+        const planFolder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id+'/plans');
         if (!fs.existsSync(planFolder)){
             fs.mkdirSync(planFolder);
         }
 
-        const progressFolder = path.join(__dirname, '../public/images/buildings/'+obj.id+'/progress');
+        const progressFolder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id+'/progress');
         if (!fs.existsSync(progressFolder)){
             fs.mkdirSync(progressFolder);
         }
@@ -59,9 +59,8 @@ const q = tress((obj, callback) => {
     callback();
 }, 1); // 10 параллельных потоков
 
-// fetch('https://garant.od.ua/api/getRecords')
 function init() {
-    fetch('http://localhost:3000/api/getRecords')
+    fetch('https://garant.od.ua/api/getRecords')
         .then(res => res.json())
         .then((data) => {
             data.map((record) => {
