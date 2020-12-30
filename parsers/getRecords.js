@@ -124,11 +124,15 @@ const parser = ($, record) => {
         res.month = $(this).find('.BuildingChart-scale').text();
         card.priceStat.push(res);
     });
+    card.withFinishing = false;
     card.fields = [];
     $(fields).each(function () {
         const field = {};
         field.label = $(this).find('.BuildingAttributes-name').text().trim();
         field.value = $(this).find('.BuildingAttributes-value').text();
+        if (field.value === 'с ремонтом') {
+            card.withFinishing = true;
+        }
         card.fields.push(field);
     });
     card.houseImages = [];
