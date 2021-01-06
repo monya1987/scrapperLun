@@ -50,8 +50,8 @@ const getRooms = (text) => {
 };
 
 const qGetPlans = tress((obj, callback) => {
-    if (typeof results[obj.record.id] === 'undefined') {
-        results[obj.record.id] = [];
+    if (typeof results[obj.record._id] === 'undefined') {
+        results[obj.record._id] = [];
     }
     let planObj = {};
     needle.get(encodeURI(config.url+obj.plan), (err, res) => {
@@ -64,17 +64,24 @@ const qGetPlans = tress((obj, callback) => {
         if (imagePath) {
             imagePath = imagePath.replace('https://img.lunstatic.net/layout-650x800/', '');
             let planTitle = $('.UIMainTitle.-with-subtitle').find('.h2').text();
-            let planPrice = $('.PlanLinks .UIGrid :first-child .UICardLink-description div').first().text();
-            planTitle = planTitle.replace('Еще планировки', '');
+            let planDescription = $('.PlanHeader .UISubtitle-content').text();
+            let planPrice = $('.PlanInfo .PlanInfo-price').text();
+            planPrice = planPrice.trim().replace(/&nbsp;/g, "");
+            planTitle = planTitle.replace('Еще планировки', '').trim();
             planObj.imagePath = imagePath;
             planObj.title = planTitle.replace(/&nbsp;/g, '');
-            planObj.imageAlt = '';
-            planObj.rooms = getRooms(planTitle);
-            if (planPrice.includes('млн') || planPrice.includes('млн') || planPrice.includes('000')) {
-                planObj.price = planPrice.trim().replace(/&nbsp;/g, " ");
-                planObj.priceNum = getPriceInNumber(planPrice.trim().replace(/&nbsp;/g, ''));
+            planObj.description = planDescription.replace(/(.*?): /g, '');
+            planObj.meters = null;
+            if (planTitle && planTitle.match(/\d+/)) {
+                planObj.meters = Number(planTitle.match(/\d+/)[0]);
             }
-            results[obj.record.id].push(planObj);
+            planObj.rooms = getRooms(planTitle);
+            planObj.price = planPrice;
+            planObj.priceNum = null;
+            if (planPrice && planPrice.match(/\d+/)) {
+                planObj.priceNum = Number(planPrice.replace(' ', '').match(/\d+/)[0]);
+            }
+            results[obj.record._id].push(planObj);
         }
         callback()
     });
@@ -83,10 +90,10 @@ const qGetPlans = tress((obj, callback) => {
 
 qGetPlans.drain = () => {
     index.map((item) => {
-        item.plans = results[item.id]
+        item.plans = results[item._id]
     });
-    console.log('Finished Get Plans & Recording to json');
-    if (results.length) {
+    if (Object.keys(results).length) {
+        console.log('Finished Get Plans & Recording to json');
         fs.writeFileSync(
             `../public/data/records.json`,
             JSON.stringify(index, null, 4), 'utf8'

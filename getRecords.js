@@ -51,7 +51,15 @@ function init() {
     fetch('https://garant.od.ua/api/getRecords')
         .then(res => res.json())
         .then((data) => {
+            // Limit records for testing
+            // const testData = [];
+            // for (let i = 0; i < 1; i++) {
+            //     testData.push(data[i])
+            // }
+            // testData.map((record) => q.push(record));
             data.map((record) => q.push(record));
+
+
         });
 }
 

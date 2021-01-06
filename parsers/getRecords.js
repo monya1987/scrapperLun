@@ -30,7 +30,7 @@ const getPriceInNumber = (text) => {
 
 const parser = ($, record) => {
     const card = {};
-    card.id = record.id;
+    card._id = record._id;
     card.title = record.title;
     card.slug = transliter.slugify(record.title);
     card.plans = [];
