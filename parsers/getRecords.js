@@ -54,10 +54,11 @@ const parser = ($, record) => {
     const buildingActions = '#building-action .UICardLink-content';
     const description = $('.BuildingDescription-text');
     const location = $('script[type="application/ld+json"]').last().html();
+    const phone = 'a[data-testid="contacts-phone"]';
     // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
     // const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
 
-
+    card.phone = $(phone).attr("href").replace('tel:', '');
     card.developer = $(developer).text().trim();
     card.developerSlug = transliter.slugify(card.developer);
     card.purchaseConditions = $(purchaseConditions).text().trim();
