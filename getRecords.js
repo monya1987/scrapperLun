@@ -48,12 +48,12 @@ q.drain = () => {
 
 
 function init() {
-    fetch('https://garant.od.ua/api/getRecords')
+    fetch('https://garant.od.ua/api/getParsedUrls')
         .then(res => res.json())
         .then((data) => {
             // Limit records for testing
             // const testData = [];
-            // for (let i = 0; i < 1; i++) {
+            // for (let i = 0; i < 3; i++) {
             //     testData.push(data[i])
             // }
             // testData.map((record) => q.push(record));

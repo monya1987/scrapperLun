@@ -57,8 +57,7 @@ const parser = ($, record) => {
     const phone = 'a[data-testid="contacts-phone"]';
     // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
     // const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
-
-    card.phone = $(phone).attr("href").replace('tel:', '');
+    card.phone = $(phone).attr("href") ? $(phone).attr("href").replace('tel:', '') : null;
     card.developer = $(developer).text().trim();
     card.developerSlug = transliter.slugify(card.developer);
     card.purchaseConditions = $(purchaseConditions).text().trim();
