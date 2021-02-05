@@ -53,7 +53,9 @@ const parser = ($, record) => {
     const buildingProgress = '.BuildingConstruction-item';
     const buildingActions = '#building-action .UICardLink-content';
     const description = $('.BuildingDescription-text');
-    const location = $('script[type="application/ld+json"]').last().html();
+    const location = $('script').filter(function() {
+        return ($(this).html().indexOf('window.params =') > -1);
+    });
     const phone = 'a[data-testid="contacts-phone"]';
     // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
     // const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
@@ -73,10 +75,13 @@ const parser = ($, record) => {
     }
     card.rating = [getRandomArbitrary(3, 6), getRandomArbitrary(10, 233)];
     if (location) {
-        const locationJSON = JSON.parse(location);
-        if (locationJSON && locationJSON.location && locationJSON.location.geo) {
-            card.location = [locationJSON.location.geo.latitude, locationJSON.location.geo.longitude]
+        console.log(card.title);
+        const res = location.html().match(/center:(.*)], bounds:/g);
+        const locationJSON = JSON.parse(res[0].replace('center: ', '').replace(', bounds:', ''));
+        if (locationJSON) {
+            card.location = [locationJSON[1], locationJSON[0]]
         }
+        console.log(card.location);
     }
     card.actions = [];
     card.paymentPlan = [];
