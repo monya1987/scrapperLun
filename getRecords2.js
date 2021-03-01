@@ -73,7 +73,7 @@ const qGetPlans = tress((obj, callback) => {
             planObj.description = planDescription.replace(/(.*?): /g, '');
             planObj.meters = null;
             if (planTitle && planTitle.match(/\d+/)) {
-                planObj.meters = Number(planTitle.match(/\d+/)[0]);
+                planObj.meters = Number(planTitle.match(/\d\d+/)[0]);
             }
             planObj.rooms = getRooms(planTitle);
             planObj.price = planPrice;
@@ -81,7 +81,9 @@ const qGetPlans = tress((obj, callback) => {
             if (planPrice && planPrice.match(/\d+/)) {
                 planObj.priceNum = Number(planPrice.replace(' ', '').match(/\d+/)[0]);
             }
-            results[obj.record._id].push(planObj);
+            if (planPrice !== 'Продано') {
+                results[obj.record._id].push(planObj);
+            }
         }
         callback()
     });
