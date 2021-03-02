@@ -38,6 +38,10 @@ const imagesParser = (obj) => {
         }
 
         if (obj.tag === 'plan') {
+            // if (obj.id === '603d051f5e0df3039a4c5e97') {
+            //     console.log(11111111111111);
+            //     console.log(obj.url);
+            // }
             if (!fs.existsSync(planFolder+ '/' + imagePath)) {
                 saveImageToDisk('https://img.lunstatic.net/layout-650x800/'+ obj.url, planFolder+ '/' + imagePath);
             }
@@ -60,15 +64,15 @@ const q = tress((obj, callback) => {
 }, 1); // 10 параллельных потоков
 
 function init() {
-    fetch('https://garant.od.ua/api/getRecords')
+    fetch('http://localhost:3000/api/getRecords')
         .then(res => res.json())
         .then((data) => {
             data.map((record) => {
-                console.log(record.title);
+                // console.log(record.title);
                 record.houseImages.map((url) => {
                     q.push({url: url, id: record._id, tag: 'house'});
                 });
-                if (record.plans) {
+                if (record.plans && record.plans.length) {
                     record.plans.map(plan => {
                         q.push({url: plan.imagePath, id: record._id, tag: 'plan'});
                     });
