@@ -12,7 +12,7 @@ const getFieldValue = (node) => {
 };
 
 const getPriceInNumber = (text) => {
-    let res = cropSubStrings(text, ['от', 'грн', 'м²', '≈']);
+    let res = cropSubStrings(text, ['от', 'грн', 'м²', '≈', '$', ' ']);
     if (res.includes('тыс.')) {
         res = res.replace('тыс.', '000')
     }
@@ -40,7 +40,7 @@ const parser = ($, record) => {
     const address = '.BuildingLocation .UISubtitle-content';
     const rooms = 'div[data-table="0"] .BuildingPrices-table a';
     const cnt_aparts = '.BuildingAttributes-name:contains(Количество квартир)';
-    const price = '.BuildingPrices-range';
+    const price = '.BuildingPrices-range div[data-currency="usd"]';
     const priceChart = '.Arrows[data-currency="usd"] .BuildingChart-column';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
@@ -66,7 +66,7 @@ const parser = ($, record) => {
     card.buildingLabel = $(buildingLabel).text().trim();
     card.area = cropSubStrings($(area).text(), ['р-н']);
     card.address = $(address).text().trim();
-    card.price = cropSubStrings($(price).text().trim(), ['Цена:', 'грн/м²']).match(/\d\d \d\d\d/g);
+    card.price = cropSubStrings($(price).text().trim(), ['курс межбанка:', '$/м²']).replace(/ /g, '').match(/\d\d\d+/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
     card.description = $(description).html() && $(description).html().replace('\\', '/');
@@ -152,9 +152,11 @@ const parser = ($, record) => {
     card.rooms = [];
     $(rooms).each(function () {
         const room = {};
-        const priceSelector = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="uah"]').first().text().trim();
+        const priceSelector = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="usd"]').first().text().trim();
+        const priceRange = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="usd"]').last().text().trim().replace(/ /g, '').match(/\d\d\d+/g);
         room.title = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell').first().text().trim();
         room.price = priceSelector;
+        room.priceRange = priceRange;
         room.priceNum = getPriceInNumber(priceSelector);
         room.meter = $(this).find('.BuildingPrices-subrow:nth-child(3) .BuildingPrices-cell').first().text().trim();
         card.rooms.push(room);

@@ -54,7 +54,7 @@ const qGetPlans = tress((obj, callback) => {
         results[obj.record._id] = [];
     }
     let planObj = {};
-    needle.get(encodeURI(config.url+obj.plan), (err, res) => {
+    needle.get(encodeURI(config.url+obj.plan), {cookies: {preferred_currency: 'usd'}}, (err, res) => {
         if (err) throw err;
         const $ = cheerio.load(res.body, {
             normalizeWhitespace: true,
