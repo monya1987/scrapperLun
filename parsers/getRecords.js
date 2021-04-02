@@ -17,7 +17,7 @@ const getPriceInNumber = (text) => {
         res = res.replace('тыс.', '000')
     }
     if (res.includes('млн')) {
-        res = res.replace(' млн', '')
+        res = res.replace(' млн', '');
         if (Number.isInteger(Number(res))) {
             res = res+' 000 000'.replace('.',' ');
         } else {
@@ -34,13 +34,13 @@ const parser = ($, record) => {
     card.title = record.title;
     card.slug = transliter.slugify(record.title);
     card.plans = [];
-
+    console.log(record.title);
     // Selectors
     const fields = '.BuildingAttributes-items .BuildingAttributes-item';
     const address = '.BuildingLocation .UISubtitle-content';
     const rooms = 'div[data-table="0"] .BuildingPrices-table a';
     const cnt_aparts = '.BuildingAttributes-name:contains(Количество квартир)';
-    const price = '.BuildingPrices-range div[data-currency="usd"]';
+    const price = '.BuildingPrices-price[data-currency="usd"]';
     const priceChart = '.Arrows[data-currency="usd"] .BuildingChart-column';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
@@ -52,7 +52,7 @@ const parser = ($, record) => {
     const buildingDocs = '.BuildingDocuments .UICardLink';
     const buildingProgress = '.BuildingConstruction-item';
     const buildingActions = '#building-action';
-    const description = $('.BuildingDescription-text');
+    // const description = $('.BuildingDescription-text');
     const location = $('script').filter(function() {
         return ($(this).html().indexOf('window.params =') > -1);
     });
@@ -69,7 +69,7 @@ const parser = ($, record) => {
     card.price = cropSubStrings($(price).text().trim(), ['курс межбанка:', '$/м²']).replace(/ /g, '').match(/\d\d\d+/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
-    card.description = $(description).html() && $(description).html().replace('\\', '/');
+    // card.description = $(description).html() && $(description).html().replace('\\', '/');
     function getRandomArbitrary(min, max) {
         return Math.floor(Math.random() * (max - min) + min);
     }
@@ -152,13 +152,13 @@ const parser = ($, record) => {
     card.rooms = [];
     $(rooms).each(function () {
         const room = {};
-        const priceSelector = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="usd"]').first().text().trim();
-        const priceRange = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell [data-currency="usd"]').last().text().trim().replace(/ /g, '').match(/\d\d\d+/g);
-        room.title = $(this).find('.BuildingPrices-subrow .BuildingPrices-cell').first().text().trim();
+        const priceSelector = $(this).find('.BuildingPrices-subrow .BuildingPrices-main [data-currency="usd"]').text().trim();
+        const priceRange = $(this).find('.BuildingPrices-subrow .BuildingPrices-additional [data-currency="usd"]').text().trim().replace(/ /g, '').match(/\d\d\d+/g);
+        room.title = $(this).find('.BuildingPrices-subrow .BuildingPrices-main').first().text().trim();
         room.price = priceSelector;
         room.priceRange = priceRange;
         room.priceNum = getPriceInNumber(priceSelector);
-        room.meter = $(this).find('.BuildingPrices-subrow:nth-child(3) .BuildingPrices-cell').first().text().trim();
+        room.meter = $(this).find('.BuildingPrices-subrow .BuildingPrices-additional').first().text().trim();
         card.rooms.push(room);
     });
 
