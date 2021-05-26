@@ -17,16 +17,16 @@ const imagesParser = (obj) => {
         imagePath = imagePath[0];
     }
     if (imagePath) {
-        const folder = path.join(__dirname, '../../garant2/public/images/buildings/'+obj.id);
+        const folder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id);
         if (!fs.existsSync(folder)){
             fs.mkdirSync(folder);
         }
-        const planFolder = path.join(__dirname, '../../garant2/public/images/buildings/'+obj.id+'/plans');
+        const planFolder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id+'/plans');
         if (!fs.existsSync(planFolder)){
             fs.mkdirSync(planFolder);
         }
 
-        const progressFolder = path.join(__dirname, '../../garant2/public/images/buildings/'+obj.id+'/progress');
+        const progressFolder = path.join(__dirname, '../../garant/public/images/buildings/'+obj.id+'/progress');
         if (!fs.existsSync(progressFolder)){
             fs.mkdirSync(progressFolder);
         }
@@ -74,7 +74,7 @@ function init() {
                 });
                 if (record.plans && record.plans.length) {
                     record.plans.map(plan => {
-                        q.push({url: plan.imagePath, id: record._id, tag: 'plan'});
+                        q.push({url: plan.url, id: record._id, tag: 'plan'});
                     });
                 }
                 if (record.progress) {

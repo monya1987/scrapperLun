@@ -8,6 +8,23 @@ const cheerio = require('cheerio');
 const resolve = require('url').resolve;
 const fs = require('fs');
 
+const getRooms = (text) => {
+    let res = 0;
+    if (text.includes('1-комнатная')) {
+        res = 1;
+    }
+    if (text.includes('2-комнатная')) {
+        res = 2;
+    }
+    if (text.includes('3-комнатная')) {
+        res = 3;
+    }
+    if (text.includes('4-комнатная')) {
+        res = 4;
+    }
+    return res;
+};
+
 
 let results = [];
 const q = tress((record, callback) => {
@@ -20,14 +37,33 @@ const q = tress((record, callback) => {
         });
         const mainParser = lunParser($, record);
         const plansUrls = [];
-        needle.get(encodeURI(config.url+'/ru'+record.urlLun+'/планировки'), (err, res) => {
+        const options = {
+            cookies : {"preferred_currency": "usd"},
+        };
+        needle.get(encodeURI(config.url+'/ru'+record.urlLun+'/планировки'), options, (err, res) => {
             const $ = cheerio.load(res.body, {
                 normalizeWhitespace: true,
                 xmlMode: true
             });
             $('.PlansCard').each(function () {
-                let urlPlan = $(this).attr('href');
-                plansUrls.push(urlPlan);
+                const plan = {
+                    url: config.url+'/ru'+record.urlLun+'/планировки/'+$(this).attr('data-plans-card'),
+                    price: $(this).find('.PlansCard-price').text(),
+                    priceRange: [],
+                    meters: $(this).find('.PlansCard-area b').text(),
+                    rooms: getRooms($(this).find('.PlansCard-area span.placeholder').text()),
+                    description: $(this).find('div.placeholder').text(),
+                };
+                if (plan.meters) {plan.meters = Number(plan.meters.match(/\d+/)[0])}
+                if (plan.price) {plan.price = Number(plan.price.replace(/\s/g, '').replace(/&nbsp;/g, "").match(/\d+/)[0])}
+                if ($(this).find('.PlansCard-price').text()) {
+                    const tmp = $(this).find('.PlansCard-price').text().replace(/\s/g, '').replace(/&nbsp;/g, "").match(/\d+/g);
+                    if (tmp.length) {
+                        plan.priceRange = [Number(tmp[0])];
+                        if (tmp.length > 1) {plan.priceRange.push(Number(tmp[1]))}
+                    }
+                }
+                plansUrls.push(plan);
             });
             mainParser.plans = plansUrls;
             results.push(mainParser);
@@ -47,26 +83,16 @@ q.drain = () => {
 };
 
 
-function init() {
+function init(limit) {
     fetch('https://garant.od.ua/api/getParsedUrls')
         .then(res => res.json())
         .then((data) => {
-            // Limit records for testing
-            // const testData = [];
-            // for (let i = 0; i < 5; i++) {
-            //     testData.push(data[i])
-            // }
-            // testData.map((record) => q.push(record));
+            if (limit) {
+                data.length = 5;
+            }
             data.map((record) => q.push(record));
-
-
         });
 }
 
 init();
-
-
-// data.map((record) => {
-//     q.push(record);
-// });
 

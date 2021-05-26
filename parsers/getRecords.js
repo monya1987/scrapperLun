@@ -52,13 +52,11 @@ const parser = ($, record) => {
     const buildingDocs = '.BuildingDocuments .UICardLink';
     const buildingProgress = '.BuildingConstruction-item';
     const buildingActions = '#building-action';
-    // const description = $('.BuildingDescription-text');
     const location = $('script').filter(function() {
         return ($(this).html().indexOf('window.params =') > -1);
     });
     const phone = 'a[data-testid="contacts-phone"]';
-    // const buildingVideo = '.BuildingGallery-preview'; 46.385094135978
-    // const buildingVideoCopter = $('.BuildingExternal a[href^="https://www.youtube.com/"]').attr('href');
+    const video = '.BuildingGallery-preview';
     card.phone = $(phone).attr("href") ? $(phone).attr("href").replace('tel:', '') : null;
     card.developer = $(developer).text().trim();
     card.developerSlug = transliter.slugify(card.developer);
@@ -66,16 +64,16 @@ const parser = ($, record) => {
     card.buildingLabel = $(buildingLabel).text().trim();
     card.area = cropSubStrings($(area).text(), ['р-н']);
     card.address = $(address).text().trim();
-    card.price = cropSubStrings($(price).text().trim(), ['курс межбанка:', '$/м²']).replace(/ /g, '').match(/\d\d\d+/g);
+    card.price = $(price).text().replace(/ /g, '').match(/\d\d\d+/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
-    // card.description = $(description).html() && $(description).html().replace('\\', '/');
+    card.video = $(video) ? $(video).attr('data-video') : false;
+    // card.copterPhoto = $('.UITabs-tab[data-tab="panorama"]');
     function getRandomArbitrary(min, max) {
         return Math.floor(Math.random() * (max - min) + min);
     }
     card.rating = [getRandomArbitrary(3, 6), getRandomArbitrary(10, 233)];
-    if (location) {
-        console.log(card.title);
+    if (location && location.html()) {
         const res = location.html().match(/center:(.*)], bounds:/g);
         const locationJSON = JSON.parse(res[0].replace('center: ', '').replace(', bounds:', ''));
         if (locationJSON) {
@@ -95,12 +93,11 @@ const parser = ($, record) => {
         } else {
             card.actions.push(action);
         }
-
     });
 
     card.finalDate = [];
     $(finalDate).each(function () {
-        card.finalDate.push($(this).find('.UIChip-content').text().trim());
+        card.finalDate.push($(this).text().trim());
     });
 
     card.documents = [];
