@@ -19,7 +19,7 @@ const qGetPlans = tress((obj, callback) => {
             normalizeWhitespace: true,
             xmlMode: true
         });
-        let imagePath = $('[data-canvas-for="developer"]').find('img').attr('src');
+        let imagePath = $('meta[property="og:image"]').attr('content');
         if (imagePath) {
             imagePath = imagePath.replace('https://img.lunstatic.net/layout-650x800/', '');
             planObj.url = imagePath;

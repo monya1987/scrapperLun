@@ -24,7 +24,6 @@ const getPriceInNumber = (text) => {
             res = (Number(res).toFixed(3)+' 000').replace('.',' ')
         }
     }
-    console.log(`getPriceInNumber ${res}`);
     return res;
 };
 
@@ -44,7 +43,7 @@ const parser = ($, record) => {
     const priceChart = '.Arrows[data-currency="usd"] .BuildingChart-column';
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
-    const buildingLabel = '.BuildingGallery .label';
+    const buildingLabel = '.BuildingGallery .UILabel';
     const finalDate = '.BuildingPrices-date ~ .UIChips .UIChip';
     const updated = '.BuildingPrices .UISubtitle-content';
     const purchaseConditions = '#building-action .BuildingAction-item[style^="--color: 250,180,0"] .BuildingAction-description';
@@ -64,7 +63,7 @@ const parser = ($, record) => {
     card.buildingLabel = $(buildingLabel).text().trim();
     card.area = cropSubStrings($(area).text(), ['р-н']);
     card.address = $(address).text().trim();
-    card.price = $(price).text().replace(/ /g, '').match(/\d\d\d+/g);
+    card.price = $(price).first().text().replace(/ /g, '').match(/\d\d\d+/g);
     card.totalAparts = getFieldValue($(cnt_aparts));
     card.updated = $(updated).text().match(/\d{2}(\D)\d{2}\1\d{4}/g);
     card.video = $(video) ? $(video).attr('data-video') : false;
@@ -79,10 +78,23 @@ const parser = ($, record) => {
         if (locationJSON) {
             card.location = [locationJSON[1], locationJSON[0]]
         }
-        console.log(card.location);
     }
     card.actions = [];
     card.paymentPlan = [];
+
+    $(buildingActions).find('.UIGrid-col-4 script').each(function () {
+        const data = JSON.parse($(this).html());
+        if (data) {
+            const {name, startDate, endDate, description} = data;
+            if (!name.match(/(Первый взнос от \d+)/g)) {
+                if (!name.match(/(Кредит под \d+)/g)) {
+                    const event = {name, startDate, endDate, description};
+                    card.actions.push(event);
+                }
+            }
+        }
+
+    });
 
     $(buildingActions).first().find('.UICardLink-content').each(function () {
         const action = {};
@@ -90,8 +102,6 @@ const parser = ($, record) => {
         action.value = $(this).find('.UICardLink-description').text().trim();
         if (action.label.includes('Рассрочка')) {
             card.paymentPlan.push(action);
-        } else {
-            card.actions.push(action);
         }
     });
 
@@ -159,78 +169,6 @@ const parser = ($, record) => {
         card.rooms.push(room);
     });
 
-
-
-
-    // const getPrice = () => {
-    //     const months = {0: 'января', 1: 'февраля', 2: 'марта', 3: 'апреля', 4: 'мая', 5: 'июня', 6: 'июля', 7: 'августа', 8: 'сентября', 9: 'октября', 10: 'ноября', 11: 'декабря',};
-    //     const today = new Date();
-    //     const nowYear = today.getFullYear(); // 2020
-    //     const nowMonth = today.getMonth(); // 2
-    //     let res = {};
-    //     const text = $(purchaseConditions).text().replace(/&nbsp;/g, ' ');
-    //     if (text) {
-    //         let toMonth = 0;
-    //         Object.keys(months).map(month => {
-    //             if (text.includes(months[month])) {
-    //                 toMonth = Number(month);
-    //             }
-    //         });
-    //         let getPercent = text.match(/\d\d%/g);
-    //         if (getPercent) {getPercent = getPercent[0]}
-    //         let year = text.match(/20\d\d/g);
-    //         if (year) {year = year[0]}
-    //         const monthsInYears = (year - nowYear) * 12;
-    //         console.log('Рассрочка - ', text, text.match(/\d\d месяцев/g));
-    //         res.totalMonths = monthsInYears + toMonth - nowMonth;
-    //         if (text.match(/\d\d месяцев/g)) {
-    //             const aaa = text.match(/\d\d месяцев/g)[0].replace(' месяцев', '')
-    //             if (aaa) {
-    //                 res.totalMonths = Number(aaa);
-    //             }
-    //         }
-    //         if (getPercent) {
-    //             res.percent = Number(getPercent.substring(0, getPercent.length - 1));
-    //         }
-    //     }
-    //     return res;
-    // };
-    //
-    // card.billCalc = getPrice();
-    // card.priceStat = priceStat;
-    // card.houseImages = houseImages;
-    // card.progres = progress;
-    // card.documents = documents;
-    // card.location = location && location.match(/\d\d.\d*/g);
-    // card.post_content = $(description).html() && $(description).html().replace('\\', '/');
-    // card.video = $(buildingVideo).attr('data-video');
-    // card.videoCopter = buildingVideoCopter && buildingVideoCopter.replace('https://www.youtube.com/watch?v=', '');
-
-
-
-
-    // card.fields.houseClass = getFieldValue($(houseClass));
-    // card.fields.cnt_houses = getFieldValue($(cnt_houses));
-    // card.fields.floors = getFieldValue($(floors));
-    // card.fields.technologies = getFieldValue($(technologies));
-    // card.fields.walls = getFieldValue($(walls));
-    // card.fields.warming = getFieldValue($(warming));
-    // card.fields.heating = getFieldValue($(heating));
-    // card.fields.ceiling = getFieldValue($(ceiling));
-    // card.fields.cnt_aparts = getFieldValue($(cnt_aparts));
-    // card.fields.condition = getFieldValue($(condition));
-    // card.fields.closed_territory = getFieldValue($(closed_territory));
-    // card.fields.parking = getFieldValue($(parking));
-    // card.rooms.room1 = $(room1).parent().parent().find('.BuildingPrices-cell').eq(3).text();
-    // card.rooms.room2 = $(room2).parent().parent().find('.BuildingPrices-cell').eq(3).text();
-    // card.rooms.room3 = $(room3).parent().parent().find('.BuildingPrices-cell').eq(3).text();
-    // card.rooms.room4 = $(room4).parent().parent().find('.BuildingPrices-cell').eq(3).text();
-    // card.rooms.room2flors = $(room2flors).parent().parent().find('.BuildingPrices-cell').eq(3).text();
-    // card.rooms.room1Price = getRoomsValue(room1, 2);
-    // card.rooms.room2Price = getRoomsValue(room2, 2);
-    // card.rooms.room3Price = getRoomsValue(room3, 2);
-    // card.rooms.room4Price = getRoomsValue(room4, 2);
-    // card.rooms.room2florsPrice = getRoomsValue(room2flors, 2);
     return card;
 };
 export default parser;

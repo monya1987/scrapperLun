@@ -47,7 +47,7 @@ const q = tress((record, callback) => {
             });
             $('.PlansCard').each(function () {
                 const plan = {
-                    url: config.url+'/ru'+record.urlLun+'/планировки/'+$(this).attr('data-plans-card'),
+                    url: config.url+'/ru'+record.urlLun+'/планировки?layout_id='+$(this).attr('data-plans-card'),
                     price: $(this).find('.PlansCard-price').text(),
                     priceRange: [],
                     meters: $(this).find('.PlansCard-area b').text(),
