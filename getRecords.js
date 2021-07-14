@@ -46,8 +46,10 @@ const q = tress((record, callback) => {
                 xmlMode: true
             });
             $('.PlansCard').each(function () {
+
                 const plan = {
-                    url: config.url+'/ru'+record.urlLun+'/планировки?layout_id='+$(this).attr('data-plans-card'),
+                    // url: config.url+'/ru'+record.urlLun+'/планировки?layout_id='+$(this).attr('data-plans-card'),
+                    url: `https://lun.ua/api/flats-modal/${$(this).attr('data-plans-card')}/ru`,
                     price: $(this).find('.PlansCard-price').text(),
                     priceRange: [],
                     meters: $(this).find('.PlansCard-area b').text(),
@@ -83,16 +85,21 @@ q.drain = () => {
 };
 
 
-function init(limit) {
+function init(limit, name) {
     fetch('https://garant.od.ua/api/getParsedUrls')
         .then(res => res.json())
         .then((data) => {
             if (limit) {
-                data.length = 5;
+                data.length = limit;
             }
-            data.map((record) => q.push(record));
+            if (name) {
+                const r = data.filter(item => item.title === name)
+                r.map((record) => q.push(record));
+            } else {
+                data.map((record) => q.push(record));
+            }
         });
 }
 
-init();
+init(0, '');
 

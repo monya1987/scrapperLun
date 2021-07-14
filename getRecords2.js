@@ -15,11 +15,11 @@ const qGetPlans = tress((obj, callback) => {
     let planObj = {...obj.plan};
     needle.get(encodeURI(obj.plan.url), (err, res) => {
         if (err) throw err;
-        const $ = cheerio.load(res.body, {
+        const $ = cheerio.load(res.body.html.modal, {
             normalizeWhitespace: true,
             xmlMode: true
         });
-        let imagePath = $('meta[property="og:image"]').attr('content');
+        let imagePath = $('.PlanCanvas-content[data-canvas-for="developer"] img').attr('src');
         if (imagePath) {
             imagePath = imagePath.replace('https://img.lunstatic.net/layout-650x800/', '');
             planObj.url = imagePath;

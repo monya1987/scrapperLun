@@ -82,7 +82,7 @@ const parser = ($, record) => {
     card.actions = [];
     card.paymentPlan = [];
 
-    $(buildingActions).find('.UIGrid-col-4 script').each(function () {
+    $(buildingActions).not('.hidden').find('script').each(function () {
         const data = JSON.parse($(this).html());
         if (data) {
             const {name, startDate, endDate, description} = data;
