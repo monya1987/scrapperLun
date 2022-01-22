@@ -20,7 +20,7 @@
     "iconv-lite": "^0.5.0",
     "image-watermark": "0.0.7",
     "needle": "^2.4.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "node-imagemagick": "^0.1.8",
     "request": "^2.88.0",
     "transliter": "^2.2.1",
