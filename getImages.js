@@ -13,7 +13,7 @@ function saveImageToDisk(url, localPath) {
 
 const imagesParser = (obj) => {
     let imagePath = obj.url.match(/[0-9]+.jpg|[0-9]+.png/i);
-    if (imagePath.length) {
+    if (imagePath && imagePath.length) {
         imagePath = imagePath[0];
     }
     if (imagePath) {
@@ -38,10 +38,9 @@ const imagesParser = (obj) => {
         }
 
         if (obj.tag === 'plan') {
-            // if (obj.id === '603d051f5e0df3039a4c5e97') {
-            //     console.log(11111111111111);
-            //     console.log(obj.url);
-            // }
+            if (obj.id === '61fd0937e6c0749df5f17afd') {
+                console.log('https://img.lunstatic.net/layout-650x800/'+ obj.url);
+            }
             if (!fs.existsSync(planFolder+ '/' + imagePath)) {
                 saveImageToDisk('https://img.lunstatic.net/layout-650x800/'+ obj.url, planFolder+ '/' + imagePath);
             }
@@ -64,10 +63,10 @@ const q = tress((obj, callback) => {
 }, 1); // 10 параллельных потоков
 
 function init() {
-    fetch('http://localhost:3000/api/getRecords')
+    fetch('http://localhost:5000/api/getRecords')
         .then(res => res.json())
         .then((data) => {
-            data.map((record) => {
+            data.records.map((record) => {
                 // console.log(record.title);
                 record.houseImages.map((url) => {
                     q.push({url: url, id: record._id, tag: 'house'});

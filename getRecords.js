@@ -1,4 +1,3 @@
-// import data from '../public/data/ulrs';
 const fetch = require("node-fetch");
 import config from './config.js';
 import lunParser from './parsers/getRecords';
@@ -8,74 +7,69 @@ const cheerio = require('cheerio');
 const resolve = require('url').resolve;
 const fs = require('fs');
 
-const getRooms = (text) => {
-    let res = 0;
-    if (text.includes('1-комнатная')) {
-        res = 1;
-    }
-    if (text.includes('2-комнатная')) {
-        res = 2;
-    }
-    if (text.includes('3-комнатная')) {
-        res = 3;
-    }
-    if (text.includes('4-комнатная')) {
-        res = 4;
-    }
-    return res;
-};
-
-
 let results = [];
-const q = tress((record, callback) => {
-    const url = encodeURI(config.url+'/ru'+record.urlLun);
-    needle.get(url, (err, res) => {
-        if (err) throw err;
-        const $ = cheerio.load(res.body.replace(/&nbsp;/g, " "), {
-            normalizeWhitespace: true,
-            xmlMode: true
-        });
-        const mainParser = lunParser($, record);
-        const plansUrls = [];
+const q = tress(function(record, done) {
+        const url = encodeURI(config.url+'/ru'+record.urlLun);
         const options = {
-            cookies : {"preferred_currency": "usd"},
+            cookies : {
+                "preferred_currency": "usd",
+                "user_language": "ru",
+                "ab_dimension_my_lun": "A_23"
+            },
         };
-        needle.get(encodeURI(config.url+'/ru'+record.urlLun+'/планировки'), options, (err, res) => {
-            const $ = cheerio.load(res.body, {
+        needle.get(url, options, (err, res) => {
+            if (err) {
+                done(err, 'some message');
+            }
+            const $ = cheerio.load(res.body.replace(/&nbsp;/g, " "), {
                 normalizeWhitespace: true,
                 xmlMode: true
             });
-            $('.PlansCard').each(function () {
+            const mainParser = lunParser($, record);
+            const plansUrls = [];
+            needle.get(encodeURI(config.url+'/ru'+record.urlLun+'/планировки'), options, (error, res) => {
+                if (res && res.body) {
+                    const $ = cheerio.load(res.body, {
+                        normalizeWhitespace: true,
+                        xmlMode: true
+                    });
 
-                const plan = {
-                    // url: config.url+'/ru'+record.urlLun+'/планировки?layout_id='+$(this).attr('data-plans-card'),
-                    url: `https://lun.ua/api/flats-modal/${$(this).attr('data-plans-card')}/ru`,
-                    price: $(this).find('.PlansCard-price').text(),
-                    priceRange: [],
-                    meters: $(this).find('.PlansCard-area b').text(),
-                    rooms: getRooms($(this).find('.PlansCard-area span.placeholder').text()),
-                    description: $(this).find('div.placeholder').text(),
-                };
-                if (plan.meters) {plan.meters = Number(plan.meters.match(/\d+/)[0])}
-                if (plan.price) {plan.price = Number(plan.price.replace(/\s/g, '').replace(/&nbsp;/g, "").match(/\d+/)[0])}
-                if ($(this).find('.PlansCard-price').text()) {
-                    const tmp = $(this).find('.PlansCard-price').text().replace(/\s/g, '').replace(/&nbsp;/g, "").match(/\d+/g);
-                    if (tmp.length) {
-                        plan.priceRange = [Number(tmp[0])];
-                        if (tmp.length > 1) {plan.priceRange.push(Number(tmp[1]))}
+                    if ($('.PlansCard').length) {
+                        $('.PlansCard').each(function () {
+                            const plan = {
+                                url: `https://lun.ua/api/layout-modal/${$(this).attr('data-plans-card')}`,
+                            };
+                            plansUrls.push(plan);
+                        });
+                    } else if($('.PlansCardTest').length) {
+                        $('.PlansCardTest').each(function () {
+                            const plan = {
+                                url: `https://lun.ua/api/layout-modal/${$(this).attr('data-plans-card')}`,
+                            };
+                            plansUrls.push(plan);
+                        });
                     }
+                } else {
+                    console.log('нет ответа', encodeURI(config.url+'/ru'+record.urlLun+'/планировки'));
                 }
-                plansUrls.push(plan);
-            });
-            mainParser.plans = plansUrls;
-            results.push(mainParser);
-            callback();
-        })
-    });
+                mainParser.plans = plansUrls;
+                results.push(mainParser);
+                done();
+            })
+        });
 
 }, 10); // 10 параллельных потоков
 
-q.drain = () => {
+q.success = function(data) {
+    // console.log('success');
+}
+
+q.error = function(err) {
+    console.log('Job ' + this + ' failed with error ' + err);
+};
+
+q.drain = function(){
+    console.log('q drain');
     if (results.length) {
         fs.writeFileSync(
             `../public/data/records.json`,
@@ -96,7 +90,9 @@ function init(limit, name) {
                 const r = data.filter(item => item.title === name)
                 r.map((record) => q.push(record));
             } else {
-                data.map((record) => q.push(record));
+                data.map((record, index) => {
+                    record.urlLun && q.push(record)
+                });
             }
         });
 }

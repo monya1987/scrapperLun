@@ -44,7 +44,7 @@ const parser = ($, record) => {
     const area = '.BuildingContacts-breadcrumbs a:last-child';
     const developer = '.BuildingContacts-developer-name span';
     const buildingLabel = '.BuildingGallery .UILabel';
-    const finalDate = '.BuildingPrices-date ~ .UIChips .UIChip';
+    const finalDate = '#date-select .UISection.-checkbox-with-title';
     const updated = '.BuildingPrices .UISubtitle-content';
     const purchaseConditions = '#building-action .BuildingAction-item[style^="--color: 250,180,0"] .BuildingAction-description';
     const houseImagesSelector = '.BuildingGallery-slider img';
@@ -107,8 +107,16 @@ const parser = ($, record) => {
 
     card.finalDate = [];
     $(finalDate).each(function () {
-        card.finalDate.push($(this).text().trim());
+        const disallow = ["Любая дата ввода", "Введено"];
+        if (!disallow.includes($(this).text().trim())) {
+            card.finalDate.push($(this).text().trim());
+        }
     });
+    if (!card.finalDate.length) {
+        if ($('input[name=date-select]').val()) {
+            card.finalDate.push($('input[name=date-select]').val());
+        }
+    }
 
     card.documents = [];
     $(buildingDocs).each(function () {
